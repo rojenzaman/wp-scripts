@@ -1,0 +1,17 @@
+#!/bin/bash
+if [ "$#" -lt 4 ]; then
+    echo "`basename $0` <db name> <db user> <ip> <db password> [sql]";
+    exit 1;
+fi
+mysql <<EOF
+CREATE DATABASE $1;
+CREATE USER $2@localhost IDENTIFIED BY '$4';
+GRANT ALL PRIVILEGES ON $1.* TO $2@localhost identified by '$4';
+CREATE USER $2@$3 IDENTIFIED BY '$4';
+GRANT ALL PRIVILEGES ON $1.* TO $2@$3 identified by '$4';
+FLUSH PRIVILEGES;
+EOF
+if [ "$#" -gt 3 ]; then
+    echo importing /w user:$2
+    mysql -u $2 -p $1 < $5
+fi

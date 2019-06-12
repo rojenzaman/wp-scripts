@@ -1,0 +1,6 @@
+#!/bin/bash
+cd /root/cf
+curl https://www.cloudflare.com/ips-v4 > ips-v4
+curl https://www.cloudflare.com/ips-v6 > ips-v6
+for i in `<ips-v4`; do ufw allow from $i proto tcp to any port 80,443; done
+for i in `<ips-v6`; do ufw allow from $i proto tcp to any port 80,443; done

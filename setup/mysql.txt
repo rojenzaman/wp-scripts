@@ -1,0 +1,5 @@
+apt-get install mysql-server
+apt-get install ssmtp
+apt-get install automysqlbackup
+mysql_secure_installation
+apt install mysql-client-core-5.7

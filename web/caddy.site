@@ -1,0 +1,38 @@
+http://{site.url}, http://www.{site.url} {
+  root /var/www/{site}/public_html
+  gzip
+  fastcgi / /var/run/php/{php}-{site}-fpm.sock php {
+    env HTTPS on
+  }
+  rewrite / {
+    if {path} not_match ^\/wp-admin
+    to {path} {path}/ /index.php?{query}
+  }
+  realip cloudflare
+
+  internal /wp-config.php
+  internal /xmlrpc.php
+  header / -X-Pingback
+
+  header /wp-content/ Cache-Control "max-age=2592000"
+  header /wp-includes/js/ Cache-Control "max-age=2592000"
+
+  log /var/www/{site}/log/access.log {
+    rotate_size 10 # Rotate a log when it reaches 100 MB
+    rotate_age  1  # Keep rotated log files for 14 days
+    rotate_keep 30  # Keep at most 10 rotated log files
+  }
+
+  errors /var/www/{site}/log/error.log {
+    rotate_size 10 # Rotate a log when it reaches 100 MB
+    rotate_age  14  # Keep rotated log files for 14 days
+    rotate_keep 30  # Keep at most 10 rotated log files
+  }
+
+  timeouts {
+    read   10s
+    header 10s
+    write  300s
+    idle   2m
+  }
+}

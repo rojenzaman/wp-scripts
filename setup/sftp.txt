@@ -1,0 +1,15 @@
+addgroup sftp
+nano /etc/ssh/sshd_config
+=============================
+# override default of no subsystems
+#Subsystem      sftp    /usr/lib/openssh/sftp-server
+Subsystem sftp internal-sftp
+
+Match Group sftp
+    ChrootDirectory %h
+    X11Forwarding no
+    AllowTcpForwarding no
+    ForceCommand internal-sftp
+=============================
+
+service ssh restart

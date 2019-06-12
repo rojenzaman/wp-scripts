@@ -1,0 +1,1 @@
+curl https://getcaddy.com | bash -s personal http.ratelimit,http.realip,tls.dns.cloudflare,http.cors

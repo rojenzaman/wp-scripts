@@ -1,0 +1,35 @@
+#!/bin/bash -e
+if [ "$#" -lt 3 ]; then
+    echo "`basename $0` <site> <url> <phpver>";
+    exit 1;
+fi
+set -x
+SITE=$1
+URL=$2
+PHPVER=$3
+
+PHP_USER=www-$SITE
+mkdir -m 750 /var/www/$SITE
+mkdir -m 775 /var/www/$SITE/public_html
+useradd -r -s /usr/sbin/nologin -d /var/www/$SITE/public_html $PHP_USER
+useradd -d /var/www/$SITE/ -s /usr/sbin/nologin -g $PHP_USER -G sftp $SITE
+chgrp $PHP_USER /var/www/$SITE
+setfacl -m "g:www-data:rx" /var/www/$SITE
+chown $SITE:$PHP_USER /var/www/$SITE/public_html
+mkdir -m 770 /var/www/$SITE/backup
+chown $SITE /var/www/$SITE/backup
+mkdir -m 770 /var/www/$SITE/log
+chown $SITE:www-data /var/www/$SITE/log
+
+PASS=`date +%s | sha256sum | base64 | head -c 16`
+echo Password is $PASS
+echo $SITE:$PASS | chpasswd
+
+sed "s/{site}/$SITE/g;s/{site.url}/$URL/g;s/{php}/php$PHPVER/g" caddy.site > /etc/caddy/sites/$SITE.site
+sed "s/{site}/$SITE/g;s/{php}/php$PHPVER/g" php.conf > /etc/php/$PHPVER/fpm/pool.d/$SITE.conf
+
+php-fpm$PHPVER -t
+service php$PHPVER-fpm restart
+
+caddy -validate
+service caddy restart

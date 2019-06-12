@@ -1,0 +1,25 @@
+#!/bin/bash -ex
+if [ "$#" -lt 2 ]; then
+    echo "`basename $0` <site> <wp.zip>";
+    exit 1;
+fi
+
+SITE=$1
+WPZIP=$PWD/$2
+
+cd /var/www/$SITE/public_html
+
+if [ "$(ls -A .|wc -l)" -ne "0" ]; then
+   echo "Not Empty: $PWD"
+   exit 1
+fi
+
+tar xzf $WPZIP --strip-components=1
+mkdir wp-content/uploads
+mkdir wp-content/upgrade
+chown -R $SITE:www-$SITE *
+chmod -R g+w *
+chmod 644 wp-config.php
+match="define\('WP_DEBUG', false\);"
+sed -i -E '/'"$match"'/,1 r add-wp-config.txt' wp-config.php
+echo done
