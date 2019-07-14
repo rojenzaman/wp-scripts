@@ -1,0 +1,14 @@
+#!/bin/bash -ex
+if [ "$#" -lt 1 ]; then
+    echo "`basename $0` <site>";
+    exit 1;
+fi
+
+SITE=$1
+
+cd /var/www/$SITE/public_html
+
+chmod 644 wp-config.php
+match="define\('WP_DEBUG', false\);"
+sed -i -E '/'"$match"'/,1 r '`dirname $0`'add-wp-config.txt' wp-config.php
+echo done
