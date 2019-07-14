@@ -19,7 +19,5 @@ mkdir wp-content/uploads
 mkdir wp-content/upgrade
 chown -R $SITE:www-$SITE *
 chmod -R g+w *
-chmod 644 wp-config.php
-match="define\('WP_DEBUG', false\);"
-sed -i -E '/'"$match"'/,1 r add-wp-config.txt' wp-config.php
-echo done
+echo "go to $SITE and install"
+echo "then run post-install-wp"
